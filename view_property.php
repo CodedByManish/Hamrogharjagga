@@ -50,8 +50,8 @@ $esewa = new eSewa();
 $signature = $esewa->generateSignature($total_amount, $transaction_uuid, "EPAYTEST");
 
 // Define success and failure URLs
-$success_url = "http://localhost/HamroGharJagga/esewa_success.php?property_id=$property_id&pid=$transaction_uuid";
-$failure_url = "http://localhost/HamroGharJagga/esewa_failure.php?property_id=$property_id&pid=$transaction_uuid";
+$success_url = "http://localhost/HamroGharJagga/esewa/esewa_success.php?property_id=$property_id&pid=$transaction_uuid";
+$failure_url = "http://localhost/HamroGharJagga/esewa/esewa_failure.php?property_id=$property_id&pid=$transaction_uuid";
 ?>
 
 <!DOCTYPE html>
