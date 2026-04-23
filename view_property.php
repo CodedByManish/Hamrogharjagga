@@ -59,6 +59,7 @@ $failure_url = "http://localhost/HamroGharJagga/esewa/esewa_failure.php?property
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($property['title']); ?> - HamroGharJajja</title>
+    <?php include('head.php'); ?>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
