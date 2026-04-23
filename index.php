@@ -157,14 +157,14 @@ if (isset($_SESSION['user_role'])) {
                             </div>
                             <span class="text-xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">HamroGharJagga</span>
                         </div>
-                        <p class="text-gray-300 text-sm mt-2">
+                        <p class="text-gray-500 text-sm mt-2">
                             Nepal's premier real estate platform connecting buyers and sellers with trusted, verified properties across all municipalities, districts, and provinces in Nepal.
                         </p>
                     </div>
                     
                     <div>
                         <h4>Quick Links</h4>
-                        <ul class="space-y-1 text-gray-300 text-sm">
+                        <ul class="space-y-1 text-gray-500 text-sm">
                             <li><a href="pages/about.html" class="hover:text-blue-400 transition-colors">About</a></li>
                             <li><a href="pages/privacy.html" class="hover:text-blue-400 transition-colors">Privacy Policy</a></li>
                             <li><a href="pages/help.html" class="hover:text-blue-400 transition-colors">Help Center</a></li>
@@ -173,7 +173,7 @@ if (isset($_SESSION['user_role'])) {
                     
                     <div>
                         <h4>Contact</h4>
-                        <ul class="space-y-1 text-gray-300 text-sm">
+                        <ul class="space-y-1 text-gray-500 text-sm">
                             <li><i class="fas fa-envelope mr-2 text-blue-400"></i>info@hamrogharjagga.com</li>
                             <li><i class="fas fa-phone mr-2 text-blue-400"></i>+977 1-234-5678</li>
                             <li><i class="fas fa-map-marker-alt mr-2 text-blue-400"></i>Kathmandu, Nepal</li>
@@ -183,16 +183,16 @@ if (isset($_SESSION['user_role'])) {
                     <div>
                         <h4>Follow Us</h4>
                         <div class="flex space-x-4">
-                            <a href="#" class="text-gray-300 hover:text-blue-400 transition-colors">
+                            <a href="#" class="text-gray-500 hover:text-blue-400 transition-colors">
                                 <i class="fab fa-facebook-f"></i>
                             </a>
-                            <a href="#" class="text-gray-300 hover:text-blue-400 transition-colors">
+                            <a href="#" class="text-gray-500 hover:text-blue-400 transition-colors">
                                 <i class="fab fa-twitter"></i>
                             </a>
-                            <a href="#" class="text-gray-300 hover:text-blue-400 transition-colors">
+                            <a href="#" class="text-gray-500 hover:text-blue-400 transition-colors">
                                 <i class="fab fa-instagram"></i>
                             </a>
-                            <a href="#" class="text-gray-300 hover:text-blue-400 transition-colors">
+                            <a href="#" class="text-gray-500 hover:text-blue-400 transition-colors">
                                 <i class="fab fa-linkedin-in text-xl"></i>
                             </a>
                         </div>
