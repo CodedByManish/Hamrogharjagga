@@ -39,13 +39,13 @@ if (isset($response['status']) && $response['status'] === 'COMPLETE' && isset($r
         $_SESSION['success_message'] = "Payment successful! The contact information for this property has been unlocked.";
     }
 
-    header("Location: view_property.php?id=" . $property_id);
+    header("Location: ../view_property.php?id=" . $property_id);
     exit;
 
 } else {
     // Transaction failed or details do not match
     $_SESSION['error_message'] = "Payment verification failed. Please try again or contact support.";
-    header("Location: view_property.php?id=" . $property_id);
+    header("Location: ../view_property.php?id=" . $property_id);
     exit;
 }
 ?>
