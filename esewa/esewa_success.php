@@ -1,51 +1,63 @@
 <?php
-session_start();
-include 'db.php';
+if (PHP_VERSION_ID >= 70300) {
+    session_start(['cookie_samesite' => 'Lax']);
+} else {
+    session_start();
+}
+include '../db.php';
 
-// Check if the user is a buyer and required GET parameters are set
-if (!isset($_SESSION['userRole']) || $_SESSION['userRole'] !== 'buyer' || !isset($_GET['property_id']) || !isset($_GET['pid']) || !isset($_GET['data'])) {
-    header("Location: find_property.php");
+// --- DEBUGGING & VALIDATION ---
+if (!isset($_GET['data']) || !isset($_SESSION['userRole'])) {
+    echo "<h2>Payment Redirect Debug Info:</h2>";
+    echo "GET Data: " . (isset($_GET['data']) ? "Received" : "MISSING") . "<br>";
+    echo "Session Role: " . ($_SESSION['userRole'] ?? "MISSING (Session Lost)") . "<br>";
+    echo "<p>If Session is missing, ensure you use <b>localhost</b> consistently.</p>";
+    echo "<a href='../find_property.php'>Return to Home</a>";
     exit;
 }
 
-$property_id = $_GET['property_id'];
-$user_email = $_SESSION['userEmail'];
-$transaction_uuid = $_GET['pid'];
-
-// Fetch user ID
-$stmt_user = $conn->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
-$stmt_user->bind_param("s", $user_email);
-$stmt_user->execute();
-$user_id = $stmt_user->get_result()->fetch_assoc()['id'];
-
-// Decode the Base64 response from eSewa
+// Decode response
 $decoded_data = base64_decode($_GET['data']);
 $response = json_decode($decoded_data, true);
 
-// Verify the transaction status and UUID
-if (isset($response['status']) && $response['status'] === 'COMPLETE' && isset($response['transaction_uuid']) && $response['transaction_uuid'] === $transaction_uuid) {
-    
-    // Check if the property is already unlocked to prevent duplicate entries
-    $stmt_check = $conn->prepare("SELECT id FROM unlocked_properties WHERE user_id = ? AND property_id = ?");
-    $stmt_check->bind_param("ii", $user_id, $property_id);
-    $stmt_check->execute();
-    if ($stmt_check->get_result()->num_rows === 0) {
-        
-        // Insert record into unlocked_properties table
-        $stmt_insert = $conn->prepare("INSERT INTO unlocked_properties (user_id, property_id) VALUES (?, ?)");
-        $stmt_insert->bind_param("ii", $user_id, $property_id);
-        $stmt_insert->execute();
-        
-        $_SESSION['success_message'] = "Payment successful! The contact information for this property has been unlocked.";
+$status           = $response['status'] ?? '';
+$transaction_uuid = $response['transaction_uuid'] ?? '';
+$total_amount     = str_replace(',', '', ($response['total_amount'] ?? 0));
+$ref_id           = $response['transaction_code'] ?? '';
+
+// EXTRACT PROPERTY_ID FROM UUID (Format: HGJ-ID-UNIQUE)
+$uuid_parts = explode('-', $transaction_uuid);
+$property_id = isset($uuid_parts[1]) ? intval($uuid_parts[1]) : 0;
+
+$user_email = $_SESSION['userEmail'];
+$stmt_user = $conn->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+$stmt_user->bind_param("s", $user_email);
+$stmt_user->execute();
+$user_res = $stmt_user->get_result()->fetch_assoc();
+$user_id = $user_res['id'] ?? 0;
+
+if (strtoupper($status) === 'COMPLETE' && $property_id > 0 && $user_id > 0) {
+    $conn->begin_transaction();
+    try {
+        // 1. Transaction Table
+        $stmt_trans = $conn->prepare("INSERT INTO transactions (user_id, property_id, amount, status, transaction_id) VALUES (?, ?, ?, ?, ?)");
+        $stmt_trans->bind_param("iisss", $user_id, $property_id, $total_amount, $status, $ref_id);
+        $stmt_trans->execute();
+
+        // 2. Unlock Table
+        $stmt_unlock = $conn->prepare("INSERT IGNORE INTO unlocked_properties (user_id, property_id) VALUES (?, ?)");
+        $stmt_unlock->bind_param("ii", $user_id, $property_id);
+        $stmt_unlock->execute();
+
+        $conn->commit();
+        $_SESSION['success_message'] = "Payment verified! Seller details revealed.";
+        header("Location: ../view_property.php?id=" . $property_id);
+        exit;
+    } catch (Exception $e) {
+        $conn->rollback();
+        die("Database Error: " . $e->getMessage());
     }
-
-    header("Location: ../view_property.php?id=" . $property_id);
-    exit;
-
 } else {
-    // Transaction failed or details do not match
-    $_SESSION['error_message'] = "Payment verification failed. Please try again or contact support.";
-    header("Location: ../view_property.php?id=" . $property_id);
-    exit;
+    die("Payment failed or invalid data received. Status: $status, Property: $property_id");
 }
 ?>
