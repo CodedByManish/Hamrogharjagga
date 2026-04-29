@@ -50,7 +50,6 @@ if (strtoupper($status) === 'COMPLETE' && $property_id > 0 && $user_id > 0) {
         $stmt_unlock->execute();
 
         $conn->commit();
-        $_SESSION['success_message'] = "Payment verified! Seller details revealed.";
         header("Location: ../view_property.php?id=" . $property_id);
         exit;
     } catch (Exception $e) {
