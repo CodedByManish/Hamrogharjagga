@@ -44,7 +44,7 @@ $transaction_uuid = "HGJ-" . $property_id . "-" . uniqid();
 $esewa = new eSewa();
 $signature = $esewa->generateSignature($total_amount, $transaction_uuid, "EPAYTEST");
 
-// CLEAN SUCCESS URL (No query parameters)
+// CLEAN SUCCESS/FALURE URL
 $success_url = "http://localhost/HamroGharJagga/esewa/esewa_success.php";
 $failure_url = "http://localhost/HamroGharJagga/esewa/esewa_failure.php";
 ?>
