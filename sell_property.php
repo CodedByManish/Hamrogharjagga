@@ -62,7 +62,7 @@ if (!isset($_SESSION['userRole']) || $_SESSION['userRole'] !== 'seller') {
                         <input type="text" id="title" name="title" placeholder="e.g., Modern 3BHK Apartment" required class="w-full p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
-                        <label for="price" class="block text-gray-700 font-medium mb-1">Price ($)</label>
+                        <label for="price" class="block text-gray-700 font-medium mb-1">Price (Rs.)</label>
                         <input type="number" id="price" name="price" placeholder="e.g., 500000" required class="w-full p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500">
                     </div>
                 </div>
