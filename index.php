@@ -1,10 +1,8 @@
 <?php
-// index.php
+// http://localhost/hamrogharjagga/index.php
 
-// Start session for authentication if needed
 session_start();
 
-// Example: Redirect logged-in users directly to dashboard
 if (isset($_SESSION['user_role'])) {
     if ($_SESSION['user_role'] === 'buyer') {
         header("Location: buyer_dashboard.php");
