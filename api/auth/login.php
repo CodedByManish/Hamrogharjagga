@@ -14,14 +14,14 @@ global $conn;
 
 $input = json_decode(file_get_contents("php://input"), true) ?? $_POST;
 
-if (!isset($input['email'], $input['password'], $input['loginRole'])) {
+if (!isset($input['email'], $input['password'], $input['role'])) {
     echo json_encode(["success" => false, "message" => "Email, password, and role selection are required."]);
     exit;
 }
 
 $email = trim($input['email']);
 $password = $input['password'];
-$role = trim($input['loginRole']);
+$role = trim($input['role']);
 
 $validRoles = UserRole::getAsArray();
 if (!isset($validRoles[$role])) {
@@ -47,7 +47,7 @@ if (!AuthService::verifyPassword($password, $user->password)) {
     exit;
 }
 
-$token = AuthService::generateToken($user->id, $user->role);
+$token = AuthService::generateSignedToken($user->id, $user->role);
 
 session_start();
 $_SESSION['userEmail'] = $user->email;

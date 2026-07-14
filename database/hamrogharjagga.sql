@@ -3,12 +3,23 @@ USE `hamrogharjagga`;
 
 CREATE TABLE `users` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(100),
-  `email` VARCHAR(100) UNIQUE,
-  `password` VARCHAR(255),
-  `role` ENUM('buyer', 'seller'),
+  `name` VARCHAR(100) NOT NULL,
+  `email` VARCHAR(100) NOT NULL UNIQUE,
+  `password` VARCHAR(255) NULL,
+  `role` ENUM('buyer', 'seller') NOT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `user_tokens` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `token_hash` VARCHAR(64) NOT NULL UNIQUE,
+  `expires_at` TIMESTAMP NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `properties` (

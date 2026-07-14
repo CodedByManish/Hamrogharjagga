@@ -1,15 +1,26 @@
-# Register User API
+# Register User
 
-- **URL:** `/api/auth/register.php`
-- **Method:** `POST`
-- **Headers:** `Content-Type: application/json`
+Register new buyer/seller account.
 
-### Request Input (JSON)
+**Endpoint:** `POST /api/auth/register.php`
+
+### Request
 ```json
 {
-  "name": "Sita Thapa",
-  "email": "sita@gmail.com",
-  "password": "password123",
-  "confirm_password": "password123",
-  "registerRole": "buyer"
+  "name": "Manish Kafle",
+  "email": "manish@example.com",
+  "password": "securepassword123",
+  "confirm_password": "securepassword123",
+  "role": "buyer"
 }
+```
+
+### Response
+```json
+{
+  "success": true,
+  "message": "Registration successful!",
+  "token": "generated-token-key",
+  "redirectTo": "find_property.php"
+}
+```

@@ -4,10 +4,10 @@ require_once __DIR__ . '/env.php';
 
 use App\Config\Env;
 
-$host = Env::get('DB_HOST', 'localhost');
-$user = Env::get('DB_USER', 'root');
-$pass = Env::get('DB_PASS', '');
-$db = Env::get('DB_NAME', 'HamroGharJagg');
+$host = Env::get('DB_HOST');
+$user = Env::get('DB_USER');
+$pass = Env::get('DB_PASS');
+$db = Env::get('DB_NAME');
 
 $conn = new mysqli($host, $user, $pass, $db);
 

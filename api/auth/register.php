@@ -12,9 +12,18 @@ use App\Services\AuthService;
 
 global $conn;
 
-$input = json_decode(file_get_contents("php://input"), true) ?? $_POST;
+$rawInput = file_get_contents("php://input");
+$jsonData = json_decode($rawInput, true);
 
-if (!isset($input['name'], $input['email'], $input['password'], $input['confirm_password'], $input['registerRole'])) {
+$input = (!empty($jsonData) && is_array($jsonData)) ? $jsonData : $_POST;
+
+$name            = isset($input['name']) ? trim($input['name']) : '';
+$email           = isset($input['email']) ? trim($input['email']) : '';
+$password        = isset($input['password']) ? $input['password'] : '';
+$confirmPassword = isset($input['confirm_password']) ? $input['confirm_password'] : '';
+$role            = isset($input['role']) ? trim($input['role']) : '';
+
+if (empty($name) || empty($email) || empty($password) || empty($confirmPassword) || empty($role)) {
     echo json_encode([
         "success" => false,
         "message" => "All registration fields are required."
@@ -22,17 +31,15 @@ if (!isset($input['name'], $input['email'], $input['password'], $input['confirm_
     exit;
 }
 
-if ($input['password'] !== $input['confirm_password']) {
+if ($password !== $confirmPassword) {
     echo json_encode([
         "success" => false,
-        "message" => "Passwords Incorrect!"
+        "message" => "Passwords do not match!"
     ]);
     exit;
 }
 
 $validRoles = UserRole::getAsArray();
-$role = trim($input['registerRole']);
-
 if (!isset($validRoles[$role])) {
     echo json_encode([
         "success" => false,
@@ -42,9 +49,9 @@ if (!isset($validRoles[$role])) {
 }
 
 $user = new UserModel([
-    'name'     => trim($input['name']),
-    'email'    => trim($input['email']),
-    'password' => password_hash($input['password'], PASSWORD_BCRYPT),
+    'name'     => $name,
+    'email'    => $email,
+    'password' => password_hash($password, PASSWORD_BCRYPT),
     'role'     => $role
 ]);
 
@@ -65,12 +72,12 @@ $stmt->bind_param("ssss", $user->name, $user->email, $user->password, $user->rol
 if ($stmt->execute()) {
     $user->id = $conn->insert_id;
 
-    $token = AuthService::generateToken($user->id, $user->role);
+    $token = AuthService::generateSignedToken($user->id, $user->role);
 
     session_start();
     $_SESSION['userEmail'] = $user->email;
     $_SESSION['userName']  = $user->name;
-    $_SESSION['userRole']  = $user->role;
+    $_SESSION['role']  = $user->role;
 
     echo json_encode([
         "success" => true,

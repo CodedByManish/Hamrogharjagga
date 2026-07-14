@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Config\Env;
 
 class AuthService {
-    public static function generateToken(int $userId, string $role): string {
+    public static function generateSignedToken(int $userId, string $role): string {
         $secret = Env::get('JWT_SECRET', 'fallback_secret');
         $payload = json_encode([
             'user_id' => $userId,
