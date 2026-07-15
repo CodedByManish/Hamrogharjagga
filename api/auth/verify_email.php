@@ -21,34 +21,26 @@ try {
     $jsonData = json_decode($rawInput, true);
     $input = (!empty($jsonData) && is_array($jsonData)) ? $jsonData : $_POST;
 
-    if (!isset($input['email'], $input['password'], $input['role'])) {
-        throw new AppException("Email, password, and role selection are required.", 400);
+    if (empty($input['email']) || empty($input['code'])) {
+        throw new AppException("Email and OTP code are required.", 400);
     }
 
     $email = trim($input['email']);
-    $password = $input['password'];
-    $role = trim($input['role']);
+    $code = trim($input['code']);
 
-    $validRoles = UserRole::getAsArray();
-    if (!isset($validRoles[$role])) {
-        throw new AppException("Invalid user role selected.", 400);
+    $isValid = AuthService::verifyOTP($email, $code, 'email_verification', $conn);
+    if (!$isValid) {
+        throw new AppException("Invalid or expired OTP code.", 400);
     }
 
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email=? AND role=? LIMIT 1");
-    $stmt->bind_param("ss", $email, $role);
+    $stmt = $conn->prepare("UPDATE users SET email_verified_at = NOW() WHERE email = ?");
+    $stmt->bind_param("s", $email);
     $stmt->execute();
-    $result = $stmt->get_result();
 
-    if ($result->num_rows !== 1) {
-        throw new AppException("User not found or role is incorrect!", 401);
-    }
-
-    $userData = $result->fetch_assoc();
-    $user = new UserModel($userData);
-
-    if (!AuthService::verifyPassword($password, $user->password)) {
-        throw new AppException("Invalid password!", 401);
-    }
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $user = new UserModel($stmt->get_result()->fetch_assoc());
 
     $token = AuthService::generateSignedToken($user->id, $user->role);
 
@@ -59,10 +51,10 @@ try {
 
     $redirectPage = ($user->role === UserRole::BUYER) ? "find_property.php" : "manage_property.php";
 
-    JsonHelper::success("Login successful!", ["token" => $token], $redirectPage);
+    JsonHelper::success("Email verified successfully!", ["token" => $token], $redirectPage);
 
 } catch (AppException $e) {
     JsonHelper::send(false, $e->getMessage(), null, null, $e->getStatusCode());
 } catch (Exception $e) {
-    JsonHelper::internalError("An unexpected server failure occurred.");
+    JsonHelper::internalError("Unexpected verification error.");
 }

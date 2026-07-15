@@ -1,14 +1,11 @@
 <?php
-
 require_once "../../config/cors.php";
+require_once "../../helpers/JsonHelper.php";
+
+use App\Helpers\JsonHelper;
 
 session_start();
 session_unset();
 session_destroy();
 
-echo json_encode([
-    "success" => true,
-    "message" => "Logged out successfully!",
-    "redirectTo" => "index.php"
-]);
-exit;
+JsonHelper::success("Logged out successfully!", null, "index.php");
