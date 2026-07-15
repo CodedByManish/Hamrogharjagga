@@ -5,12 +5,14 @@ require_once "../../config/db.php";
 require_once "../../enums/UserRole.php";
 require_once "../../models/UserModel.php";
 require_once "../../services/AuthService.php";
+require_once "../../services/EmailService.php";
 require_once "../../exceptions/AppException.php";
 require_once "../../helpers/JsonHelper.php";
 
 use App\Enums\UserRole;
 use App\Models\UserModel;
 use App\Services\AuthService;
+use App\Services\EmailService;
 use App\Exceptions\AppException;
 use App\Helpers\JsonHelper;
 
@@ -61,17 +63,10 @@ try {
         throw new AppException("Database execution failure. Try again!", 500);
     }
 
-    $user->id = $conn->insert_id;
-    $token = AuthService::generateSignedToken($user->id, $user->role);
+    $otpCode = AuthService::createOTP($user->email, 'email_verification', $conn);
+    EmailService::sendOTP($user->email, $otpCode, 'email_verification');
 
-    session_start();
-    $_SESSION['userEmail'] = $user->email;
-    $_SESSION['userName']  = $user->name;
-    $_SESSION['role']      = $user->role;
-
-    $redirectPage = ($user->role === UserRole::BUYER) ? "find_property.php" : "manage_property.php";
-
-    JsonHelper::created("Registration successful!", ["token" => $token], $redirectPage);
+    JsonHelper::created("Registration successful! Please verify your email.", ["email" => $user->email], "verify_otp.php");
 
 } catch (AppException $e) {
     JsonHelper::send(false, $e->getMessage(), null, null, $e->getStatusCode());
